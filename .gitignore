@@ -1,0 +1,18 @@
+# Secrets: never commit
+*.ovpn
+config-*.xml
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.kdbx
+.env
+
+# Raw evidence before it's been cleaned of sensitive info
+private/
+
+# OS clutter
+Thumbs.db
+desktop.ini
+.DS_Store
