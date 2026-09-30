@@ -1,0 +1,4 @@
+Proxmox ip -br a + ip route showing DOWN / linkdown	Physical link failure during the outage
+ethtool nic0 → Link detected: no, then yes after the switch was powered	Root cause confirmed and resolved
+ipconfig showing .150 + DHCP disabled, then .100 via DHCP	Stale static config found and fixed
+route print -4 with the 192.168.10.0 → 192.168.99.1 line	Split tunnel working
