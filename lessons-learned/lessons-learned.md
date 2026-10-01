@@ -21,3 +21,13 @@
 - **Git repo-level config overrides global config.** A placeholder email broke commit attribution; found with `git config --show-origin`.
 - **Run commands from the right folder.** The prompt shows where you are.
 - **A folder named `private/` is ignored at any depth.** Moving it inside `screenshots/` kept the images out of the commit.
+## Linux administration (rhel01)
+- **Configured ≠ applied.** Proxmox showed VLAN-aware enabled while the change was still pending. Check the running state (`/sys/class/net/vmbr0/bridge/vlan_filtering`), not the GUI.
+- **A passing syntax check is not proof of effect.** `sshd -t` passed on an unchanged config; `sshd -T` shows what is actually enforced.
+- **Client vs. server config:** `ssh_config` (outbound) vs. `sshd_config` (inbound).
+- **Generate keys on the client.** The private key must never live on the server.
+- **Know which machine you're on.** The prompt (`PS C:\>` vs `user@host:~$`) tells you.
+- **SELinux denials are fixed with labels, not by disabling SELinux.** `semanage fcontext` + `restorecon` is permanent; `chcon` is not.
+- **Test fstab with `mount -a` before rebooting.** A bad entry can drop the server into emergency mode.
+- **Validate after reboot.** The reboot test exposed a volatile journal that would have hidden pre-reboot evidence during an incident.
+- **Don't claim evidence you don't have.** No AVC was logged during the original fix, so the denial was reproduced as a controlled test.

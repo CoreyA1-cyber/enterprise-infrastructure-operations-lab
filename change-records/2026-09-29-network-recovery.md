@@ -28,6 +28,11 @@ The lab was unreachable after a long period offline. Troubleshooting from the ph
 | 17 | Rule review finding | SERVERS block rules scoped to "SERVERS address" (firewall IP only) instead of "SERVERS subnets"; would have bypassed segmentation. Corrected. | Rule list |
 | 18 | Switch VLANs configured | VLAN 20 tagged ports 2–3; VLAN 30 tagged ports 1–3; VLAN 1 unchanged | Switch VLAN table |
 | 19 | DHCP range reset by wizard | LAN pool reverted to .10–.245; corrected to .100–.200; reservations added for sw01/ap01 | Lease table |
+| 20 | Legacy VMs reviewed | Removed 100 (Splunk, expired trial), 101 (DC on retired network), 102 (Rocky 9, replaced by RHEL 10) after backup; kept 103 (Nessus) and 200 (Docker) stopped | Storage freed |
+| 21 | rhel01 failed to start: "no physical interface on bridge vmbr0" | VLAN-aware was configured in the GUI but left **pending**, never applied. Kernel showed `vlan_filtering = 0`. Applied configuration. | `vlan_filtering = 1` |
+| 22 | rhel01 rebooted into installer after install | Install ISO still attached and first in boot order. Detached ISO, set disk first. | Booted to login |
+| 23 | SSH hardening drop-in had no effect | File placed in client dir (`ssh_config.d`) with a typo; `sshd -t` passed because server config was unchanged. Moved to `sshd_config.d/01-hardening.conf`. | `sshd -T` shows both settings `no` |
+| 24 | Journal lost on reboot | Volatile journal storage; configured persistent journaling | 2 boots retained |
 
 ## Known deviations / follow-ups
 - VPN server certificate issued with 10-year lifetime (best practice ~1 year). Reissue planned.

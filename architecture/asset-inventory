@@ -21,11 +21,11 @@
 ## Virtual machines (on pve)
 | Hostname | OS | VLAN | IP | vCPU / RAM | Status |
 |---|---|---|---|---|---|
-| rhel01 | RHEL 10 | 20 | 192.168.20.20 | 2 / 4 GB | Planned |
+| rhel01 | RHEL 10 | 20 | 192.168.20.20 | 2 / 4 GB | B |
 | dc01 | Windows Server 2022 | 20 | 192.168.20.10 | — | Planned |
 | splunk01 | — | 20 | 192.168.20.30 | — | Planned |
 | ws01 | Windows client | 30 | DHCP | — | Planned |
-| (4 legacy VMs) | From previous lab | — | — | — | Stopped; pending review/removal |
+| 103 nessus-scanner, 200 docker-host: stopped, outside project scope |
 
 ## Admin access
 | Item | Detail |

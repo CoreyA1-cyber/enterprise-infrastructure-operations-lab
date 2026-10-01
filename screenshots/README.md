@@ -45,5 +45,9 @@ Evidence supporting the build and validation of this lab. Each image is captione
 | 18 | [18-switch-vlan-config.png](18-switch-vlan-config.png) | Omada SG2210MP VLAN configuration: VLAN 20 on ports 2–3 (Proxmox, pfSense) and VLAN 30 on ports 1–3 (AP, Proxmox, pfSense), tagged; VLAN 1 untagged Management on all ports. |
 | 19 | [19-switch-port-pvid.png](19-switch-port-pvid.png) | All switch ports keep PVID 1, so untagged traffic stays in Management while VLAN 20/30 traffic is carried tagged. | 
 | 20 | [20-vpn-client-split-tunnel.png](20-vpn-client-split-tunnel.png) | VPN client connected: TAP adapter at 192.168.99.2 with no default gateway; only lab subnets route through the tunnel. |
+| 21 | [21-vpn-find-netroute.png](21-vpn-find-netroute.png) | Route check with privacy VPN active: lab traffic uses the lab VPN adapter, internet traffic uses the privacy VPN. |
+| 22 | [22-proxmox-vmbr0-vlan-aware.png](22-proxmox-vmbr0-vlan-aware.png) | Proxmox bridge vmbr0 set to VLAN-aware, allowing VMs to be placed on VLAN 20/30 by tag. |
+| 23 | [23-proxmox-rhel01-hardware.png](23-proxmox-rhel01-hardware.png) | rhel01 VM: CPU type host (required for RHEL 10), 40 GB OS disk + 10 GB data disk for LVM, NIC tagged VLAN 20, install media detached. |
+| 24 | [24-proxmox-rhel01-summary.png](24-proxmox-rhel01-summary.png) | rhel01 summary: guest agent reporting 192.168.20.20 on the Servers VLAN. |
 
 

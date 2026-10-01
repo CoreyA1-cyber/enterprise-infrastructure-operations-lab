@@ -17,12 +17,15 @@ My objective with this project is to create a small enterprise network where I c
 - [IP Plan](architecture/ip-plan.md)
 - [Asset Inventory](architecture/asset-inventory.md)
 - [Failure Scenario](architecture/failure-scenario.md)
+- [rhel01 Build Guide](build-guides/rhel01-build.md)
+- [Backup & Restore Runbook](runbooks/rhel01-backup-restore.md)
 
 ## Status
 | Phase | Status |
 |---|---|
 | Network foundation & remote access | ✅ Complete |
-| RHEL administration | 🔄 In progress |
+| RHEL administration (rhel01) | ✅ Complete |
+| Monitoring (splunk01) | 🔄 In progress |
 | NOC incident | ⏳ Planned |
 | Change management | ⏳ Planned |
 | AD support incident | ⏳ Planned |
