@@ -44,6 +44,6 @@ Evidence supporting the build and validation of this lab. Each image is captione
 |---|---|---|
 | 18 | [18-switch-vlan-config.png](18-switch-vlan-config.png) | Omada SG2210MP VLAN configuration: VLAN 20 on ports 2–3 (Proxmox, pfSense) and VLAN 30 on ports 1–3 (AP, Proxmox, pfSense), tagged; VLAN 1 untagged Management on all ports. |
 | 19 | [19-switch-port-pvid.png](19-switch-port-pvid.png) | All switch ports keep PVID 1, so untagged traffic stays in Management while VLAN 20/30 traffic is carried tagged. | 
-
+| 20 | [20-vpn-client-split-tunnel.png](20-vpn-client-split-tunnel.png) | VPN client connected: TAP adapter at 192.168.99.2 with no default gateway; only lab subnets route through the tunnel. |
 
 

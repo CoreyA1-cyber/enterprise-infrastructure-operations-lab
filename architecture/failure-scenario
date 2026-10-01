@@ -1,0 +1,20 @@
+# Planned Failure Scenario
+
+**Target:** rhel01 (192.168.20.20), web service
+**Purpose:** Exercise the full NOC incident lifecycle: detect, ticket, scope, troubleshoot, restore, validate, and write a root-cause analysis.
+
+## Method
+One of the following will be introduced (chosen in advance, recorded only in the incident record after resolution):
+- Stop the web service (`systemctl stop httpd`)
+- Block the service port with firewalld
+
+## Expected detection
+Monitoring alert on the failed service check.
+
+## Success criteria
+- Alert time recorded
+- Incident ticket opened with scope and impact
+- Root cause identified using standard tools (ping, ss, curl, systemctl, journalctl, firewall-cmd)
+- Service restored and availability validated
+- Detection time and recovery time recorded
+- Root-cause analysis written
