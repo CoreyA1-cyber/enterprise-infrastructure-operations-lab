@@ -1,0 +1,34 @@
+# Asset Inventory
+
+## Physical devices
+| Hostname | Type | Hardware / OS | Management IP | Switch port | Notes |
+|---|---|---|---|---|---|
+| fw01 | Firewall / router | Celeron J3160, 4 GB RAM / pfSense CE 2.7.2 | 192.168.10.1 | 3 (LAN) | WAN `igb0` → ISP router; LAN `igb1` (trunk: untagged Mgmt + VLAN 20/30); `igb2` unused. AES-NI enabled. |
+| sw01 | Managed switch | TP-Link Omada SG2210MP (8× PoE+, 2× SFP) | 192.168.10.2 | — | Standalone mode. 802.1Q VLANs 1/20/30. |
+| ap01 | Wireless AP | TP-Link Omada EAP660 HD | 192.168.10.3 | 1 (PoE) | SSID → Users VLAN planned. |
+| pve | Hypervisor | Dell OptiPlex, 8 vCPU, 31 GiB RAM / Proxmox VE 9.1.1 | 192.168.10.50 | 2 | `nic0` → `vmbr0` (VLAN-aware). |
+| — | ISP router | Spectrum, app-managed | 192.168.1.1 (outside lab) | — | Upstream only. Not managed as part of the lab. |
+
+## Switch port map (sw01)
+| Port | Device | VLAN membership |
+|---|---|---|
+| 1 | ap01 | 1 untagged, 30 tagged |
+| 2 | pve | 1 untagged, 20 + 30 tagged |
+| 3 | fw01 LAN (`igb1`) | 1 untagged, 20 + 30 tagged |
+| 4–8 | Unused | 1 untagged (default) |
+| 9–10 (SFP) | Unused | — |
+
+## Virtual machines (on pve)
+| Hostname | OS | VLAN | IP | vCPU / RAM | Status |
+|---|---|---|---|---|---|
+| rhel01 | RHEL 10 | 20 | 192.168.20.20 | 2 / 4 GB | Planned |
+| dc01 | Windows Server 2022 | 20 | 192.168.20.10 | — | Planned |
+| splunk01 | — | 20 | 192.168.20.30 | — | Planned |
+| ws01 | Windows client | 30 | DHCP | — | Planned |
+| (4 legacy VMs) | From previous lab | — | — | — | Stopped; pending review/removal |
+
+## Admin access
+| Item | Detail |
+|---|---|
+| Admin workstation | Windows PC on home network; connects via OpenVPN (tunnel 192.168.99.0/24) |
+| Reachable over VPN | Management + Servers networks, TCP 22/443/8006 and ICMP echo only |
