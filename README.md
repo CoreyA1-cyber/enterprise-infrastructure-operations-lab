@@ -2,7 +2,7 @@
 
 ## Objective
 My objective with this project is to create a small enterprise network where I can get hands-on technical skills to display knowledge and capabality of setting up and maintaining infrastructure which I can translate these skills into a live operation for career aspirations.
-## Environme
+## Environment
 | Component | Platform |
 |---|---|
 | Firewall | pfSense CE 2.7.2 (physical) |
