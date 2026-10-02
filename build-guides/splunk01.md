@@ -2,12 +2,12 @@
 
 **Role:** Splunk Enterprise indexer/search head; synthetic service monitoring
 **Address:** 192.168.20.30/24 · Gateway 192.168.20.1 · DNS 192.168.20.1
-**Platform:** Proxmox VM 130 · 4 vCPU (host) · 8 GB RAM · 80 GB disk · Ubuntu Server 22.04.5 LTS
+**Platform:** Proxmox VM 130 · 4 vCPU (host) · 8 GB RAM · 80 GB disk · Ubuntu 26.04.1 LTS
 
 ## Design decisions
 | Decision | Choice | Why |
 |---|---|---|
-| OS | Ubuntu Server 22.04.5 LTS | Supported Splunk platform; standard support through April 2027 |
+| OS | Ubuntu 26.04.1 LTS | Ubuntu 26.04.1 LTS. Not yet on Splunk's published supported-OS list at install time; validated working in this lab (indexing, forwarding, alerting).|
 | Placement | Servers VLAN | Forwarders on the same segment send logs without crossing the firewall |
 | License | Splunk Enterprise trial | Includes alerting (not available on the Free license) |
 | Monitoring location | Checks run from splunk01, not on the target | An external check still reports when the target host itself fails |
