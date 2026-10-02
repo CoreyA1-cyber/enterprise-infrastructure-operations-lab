@@ -19,14 +19,16 @@ My objective with this project is to create a small enterprise network where I c
 - [Failure Scenario](architecture/failure-scenario.md)
 - [rhel01 Build Guide](build-guides/rhel01-build.md)
 - [Backup & Restore Runbook](runbooks/rhel01-backup-restore.md)
+- [splunk01 Build Guide](build-guides/splunk01-build.md)
+- [Monitoring Change Record](change-records/2026-10-01-monitoring-deployment.md)
 
 ## Status
 | Phase | Status |
 |---|---|
 | Network foundation & remote access | ✅ Complete |
 | RHEL administration (rhel01) | ✅ Complete |
-| Monitoring (splunk01) | 🔄 In progress |
-| NOC incident | ⏳ Planned |
+| Monitoring (splunk01) | ✅ Complete |
+| NOC incident | 🔄 In progress |
 | Change management | ⏳ Planned |
 | AD support incident | ⏳ Planned |
 | Security & automation | ⏳ Planned |

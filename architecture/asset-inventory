@@ -21,9 +21,9 @@
 ## Virtual machines (on pve)
 | Hostname | OS | VLAN | IP | vCPU / RAM | Status |
 |---|---|---|---|---|---|
-| rhel01 | RHEL 10 | 20 | 192.168.20.20 | 2 / 4 GB | B |
+| rhel01 | RHEL 10 | 20 | 192.168.20.20 | 2 / 4 GB | Built |
 | dc01 | Windows Server 2022 | 20 | 192.168.20.10 | — | Planned |
-| splunk01 | — | 20 | 192.168.20.30 | — | Planned |
+| splunk01 | Ubuntu 22.04.5 LTS / Splunk Enterprise | 20 | 192.168.20.30 | 4 vCPU 8GB 80GB VM 130 | Built |
 | ws01 | Windows client | 30 | DHCP | — | Planned |
 | 103 nessus-scanner, 200 docker-host: stopped, outside project scope |
 
@@ -31,4 +31,4 @@
 | Item | Detail |
 |---|---|
 | Admin workstation | Windows PC on home network; connects via OpenVPN (tunnel 192.168.99.0/24) |
-| Reachable over VPN | Management + Servers networks, TCP 22/443/8006 and ICMP echo only |
+| Reachable over VPN | Management + Servers networks, TCP 22/443/8006/8000 and ICMP echo only |

@@ -49,5 +49,10 @@ Evidence supporting the build and validation of this lab. Each image is captione
 | 22 | [22-proxmox-vmbr0-vlan-aware.png](22-proxmox-vmbr0-vlan-aware.png) | Proxmox bridge vmbr0 set to VLAN-aware, allowing VMs to be placed on VLAN 20/30 by tag. |
 | 23 | [23-proxmox-rhel01-hardware.png](23-proxmox-rhel01-hardware.png) | rhel01 VM: CPU type host (required for RHEL 10), 40 GB OS disk + 10 GB data disk for LVM, NIC tagged VLAN 20, install media detached. |
 | 24 | [24-proxmox-rhel01-summary.png](24-proxmox-rhel01-summary.png) | rhel01 summary: guest agent reporting 192.168.20.20 on the Servers VLAN. |
+| 25 | [25-proxmox-splunk01-hardware.png](25-proxmox-splunk01-hardware.png) | splunk01 VM: 4 vCPU (host), 8 GB RAM, 80 GB disk, NIC tagged VLAN 20. |
+| 26 | [26-splunk-indexes.png](26-splunk-indexes.png) | Custom indexes `linux`, `network`, and `windows`, each capped at 20 GB to prevent disk exhaustion on the 80 GB volume. |
+| 27 | [27-splunk-rhel01-events.png](27-splunk-rhel01-events.png) | rhel01 logs (secure, messages, httpd access/error) arriving via the Universal Forwarder. |
+| 28 | [28-splunk-svc-check.png](28-splunk-svc-check.png) | Synthetic HTTP check from splunk01 to rhel01 every minute: status 200, ~1 ms response, state UP. |
+| 29 | [29-splunk-alert-config.png](29-splunk-alert-config.png) | Alert "rhel01 HTTP service down": runs every minute over the last 2 minutes, triggers on any non-UP result, throttled 10 minutes. |
 
 
