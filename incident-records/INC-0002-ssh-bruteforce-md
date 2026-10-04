@@ -1,0 +1,92 @@
+# INC-0002 — SSH Authentication Flood Against rhel01
+
+| Field | Value |
+|---|---|
+| Incident | INC-0002 |
+| Severity | SEV-3 (single host, no compromise) |
+| Detected by | Splunk alert "SSH brute-force attempt (rhel01)" |
+| Affected host | rhel01 (192.168.20.20, VLAN 20 Servers) |
+| Source | 192.168.99.2 (VPN client, authorised lab workstation) |
+| Handler | Corey Armstrong |
+| Attack started | 2026-10-04 16:52 |
+| Detected | 2026-10-04 16:56 |
+| Contained | 2026-10-04 17:00 |
+| Validated | 2026-10-04 17:10 |
+| Status | Resolved |
+
+> **Lab exercise.** Failed SSH authentications were generated deliberately from an authorised workstation to test end-to-end detection and response. No real attacker was involved. The source IP is lab-internal.
+
+## Metrics
+
+| Metric | Value |
+|---|---|
+| Time to detect (TTD) | ~4 min (attack 16:52 → detection 16:56) |
+| Time to contain (TTR) | ~8 min (detection 16:56 → block 17:00, validated 17:10) |
+| Failed auth events | 64 from a single source in ~35 seconds |
+
+## 1. Detection
+
+Splunk flagged a single source IP exceeding the failed-authentication threshold on rhel01.
+
+```
+index=linux sourcetype=linux_secure ("Failed password" OR "Failed publickey" OR "Connection closed by authenticating user" OR "Invalid user")
+| rex "(?:from|user \S+ )(?<src_ip>\d+\.\d+\.\d+\.\d+)"
+| stats count AS failures, values(user) AS users_tried, min(_time) AS first, max(_time) AS last by src_ip
+| where failures >= 5
+| convert ctime(first) ctime(last)
+| sort - failures
+```
+
+Result: `192.168.99.2` — **64 failures**, user `baduser`, 16:56:08 → 16:56:43. *(Screenshot 52)*
+
+## 2. Investigation
+
+| Question | Finding |
+|---|---|
+| One source or many? | Single source: 192.168.99.2 |
+| Which account(s)? | `baduser` — does not exist on rhel01 |
+| Succeeded at any point? | No — zero "Accepted" events for that source |
+| How was it reaching SSH? | Over the OpenVPN tunnel (192.168.99.0/24), which is allowed to rhel01:22 by design |
+| Compromise indicators? | None — no accepted logins, no new sessions, no sudo activity from that source |
+
+rhel01 is key-only (`PasswordAuthentication no`), so every attempt was refused at authentication. The flood was noise, not a breach — but the volume is exactly what a real brute-force looks like, so it was treated as an incident.
+
+## 3. Root cause
+
+An authorised VPN client generated a burst of failed SSH authentications (lab test). The underlying exposure being exercised: any host that can reach the tunnel can hammer rhel01:22, and without a detection + block, a real attacker could do the same unnoticed.
+
+## 4. Containment
+
+Blocked the single offending source at the host firewall:
+
+```bash
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.99.2/32" drop'
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-rich-rules
+```
+
+Scoped to `/32` deliberately — blocking the whole VPN subnet would have cut off legitimate admin access.
+
+## 5. Validation
+
+| Check | Before block | After block |
+|---|---|---|
+| `ssh baduser@192.168.20.20` from 192.168.99.2 | "Permission denied" (reached sshd) | **Connection timed out** (dropped at firewall) *(Screenshot 53)* |
+| Admin SSH from an allowed source / Proxmox console | Working | Still working |
+| New failures in Splunk from 192.168.99.2 | — | None after 17:00 |
+
+The change from "Permission denied" to "timed out" confirms packets are now dropped before sshd.
+
+## 6. Follow-up / corrective actions
+
+- [ ] **Planned** — Install and configure `fail2ban` (or a firewalld equivalent) so repeated SSH failures are auto-blocked without manual action.
+- [ ] **Planned** — Splunk alert tuning: add a second, higher-severity rule for failures from *outside* the VPN/management ranges.
+- [x] Detection alert "SSH brute-force attempt (rhel01)" in place and tested.
+- [ ] **Decision needed** — time-box the manual `/32` block or move it into a managed blocklist, so stale drop rules don't accumulate.
+
+## 7. Lessons learned
+
+- Key-only SSH stops the login but **not the noise** — detection still matters.
+- A host firewall `drop` is a fast, reversible containment step; scoping to `/32` avoids collateral lockout.
+- "Permission denied" vs. "connection timed out" is a clean, demonstrable proof that a network-layer block is working.
+- Console access (Proxmox) is the safety net when editing firewall rules remotely.
