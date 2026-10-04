@@ -30,6 +30,6 @@ My objective with this project is to create a small enterprise network where I c
 | RHEL administration (rhel01) | ✅ Complete |
 | Monitoring (splunk01) | ✅ Complete |
 | NOC incident | ✅ Complete |
-| Change management | ⏳ Planned |
-| AD support incident | ⏳ Planned |
+| Change management | ✅ Complete |
+| AD support incident | ✅ Complete |
 | Security & automation | ⏳ Planned |

@@ -90,3 +90,34 @@ Photos of actual equipment. Device identifiers redacted; location metadata remov
 | 33 | [33-photo-fw01-cabling-labels.png](33-photo-fw01-cabling-labels.png) | fw01: WAN (igb0) and LAN (igb1) cabled with link LEDs active; OPT ports unused. Temporary label identifies the WAN cable as FW01-WAN to ISP router. |
 | 34 | [34-photo-sw01-port-labels.png](34-photo-sw01-port-labels.png) | sw01: ports 1–3 in use with link LEDs active, matching the documented port map (P01 ap01, P02 pve, P03 fw01 LAN). Temporary identification labels placed per cable. |
 | 35 | [35-switch-mac-table.png](35-switch-mac-table.png) | sw01 MAC address table: each device's MAC learned on its documented port and VLAN, confirming the port map from switch data. |
+
+## Phase 8 — Active Directory (dc01 / ws01)
+
+| # | File | What it shows |
+|---|---|---|
+| 36 | `36-dc01-ipconfig.png` | dc01 static IP 192.168.20.10/24, gateway 192.168.20.1, gateway ping and DNS resolution verified before promotion |
+| 37 | `37-dc01-ad-validation.png` | Forest `corp.internal` created; `dcdiag` DNS, Connectivity, Advertising, NetLogons, and Services tests passed after resolving first-boot DNS registration errors |
+| 38 | `38-ad-ou-structure.png` | OU design: Corp → Users (IT, HR, Finance, Sales), Groups, Workstations, Servers, Admins |
+| 39 | `39-ad-users-by-department.png` | 12 users across 4 departments, enabled, each in its `GG_<Dept>` global group |
+| 40 | `40-share-ntfs-permissions.png` | `Departments` share with access-based enumeration; NTFS on Finance limited to `DL_Share_Finance_RW` (Modify), Domain Admins, SYSTEM (AGDLP) |
+| 41 | `41-gpo-drive-map.png` | GPO `U_DriveMap_Departments` maps S: to `\\dc01.corp.internal\Departments` |
+| 42 | `42-pfsense-users-ad-rules.png` | USERS rules: AD_TCP / AD_UDP pass to dc01 only, placed above the block to SERVERS |
+| 43 | `43-capture-users-vs-servers.png` | DNS troubleshooting: queries from VLAN 30 arrived on USERS but not on SERVERS (dropped by pfSense); after the AD rules were activated, full query/reply on SERVERS |
+| 44 | `44-ws01-domain-joined.png` | ws01 joined to `corp.internal` and placed in OU=Workstations (via `redircmp`) |
+| 45 | `45-ws01-finance-s-drive.png` | Finance user `treed`: S: shows only Finance, GPO applied (`gpresult`) |
+
+## Phase 8b — TKT-0001: Transferred user access
+
+| # | File | What it shows |
+|---|---|---|
+| 46 | `46-tkt0001-access-denied.png` | `jcole` (moved to Finance OU) gets Access denied on the Finance folder |
+| 47 | `47-tkt0001-effective-access.png` | Effective Access shows no permissions; user still in GG_Sales, not GG_Finance |
+| 48 | `48-tkt0001-resolved.png` | After group swap and re-logon: `whoami /groups` shows GG_Finance, S: shows Finance, write test succeeds |
+
+## Phase 8c — Windows logging to Splunk
+
+| # | File | What it shows |
+|---|---|---|
+| 49 | `49-splunk-dc01-sourcetypes.png` | dc01 Security, System, and Application logs arriving in `index=windows` |
+| 50 | `50-splunk-tkt0001-group-changes.png` | Events 4728/4729 record jcole added to GG_Finance and removed from GG_Sales, giving an audit trail for TKT-0001 |
+| 51 | `51-splunk-group-change-alert-triggered.png` | Alert "AD security group membership change" fired on a controlled test (jcole added to and removed from GG_HR, events 4728/4729) |
