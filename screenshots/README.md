@@ -121,3 +121,22 @@ Photos of actual equipment. Device identifiers redacted; location metadata remov
 | 49 | `49-splunk-dc01-sourcetypes.png` | dc01 Security, System, and Application logs arriving in `index=windows` |
 | 50 | `50-splunk-tkt0001-group-changes.png` | Events 4728/4729 record jcole added to GG_Finance and removed from GG_Sales, giving an audit trail for TKT-0001 |
 | 51 | `51-splunk-group-change-alert-triggered.png` | Alert "AD security group membership change" fired on a controlled test (jcole added to and removed from GG_HR, events 4728/4729) |
+## Phase 8c — Windows logging & detection (Splunk)
+
+| # | File | What it shows |
+|---|---|---|
+| 51 | `51-splunk-group-change-alert-triggered.png` | Alert "AD security group membership change" fires on a controlled test (jcole added to / removed from GG_HR, events 4728/4729) |
+
+## Phase 9 — INC-0002: SSH brute-force detection & response
+
+| # | File | What it shows |
+|---|---|---|
+| 52 | `52-inc0002-splunk-bruteforce.png` | Splunk detection flags a single source (192.168.99.2) with 64 failed SSH authentications in ~35 seconds on rhel01 |
+| 53 | `53-inc0002-contained.png` | Containment verified: SSH from the blocked source changes from "Permission denied" to "Connection timed out" after a scoped firewalld drop rule |
+
+## Phase 10 — Server health monitoring
+
+| # | File | What it shows |
+|---|---|---|
+| 54 | `54-healthcheck-output.png` | lab-healthcheck.sh report — disk, memory, load, services (incl. SplunkForwarder), failed SSH, listening ports, connectivity; WARN correctly flags the residual failed-SSH count from INC-0002 |
+| 55 | `55-healthcheck-timer.png` | systemd timer running the health check every 15 minutes, plus the rotated report logs in /var/log/healthcheck/ |

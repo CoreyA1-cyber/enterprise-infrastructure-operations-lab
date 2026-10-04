@@ -1,42 +1,45 @@
 # Lessons Learned
 
-## Troubleshooting
-- **Check the physical layer first.** The "Proxmox outage" was an unpowered switch.
-- **Establish scope before fixing.** One unreachable host was actually the whole lab offline.
-- **Timeout vs. refused tells you which layer to look at.** Timeout = nothing answered.
-- **Pinging your own IP proves nothing about the network.** Test the gateway.
-- **Check your own inputs.** A failed login was the wrong username, not a failed password reset.
-- **Old settings can mislead.** A stale static IP made the network look healthy when DHCP hadn't been tested.
-- **"It worked after X" is not a root cause.** Record what was observed and mark causes unconfirmed when they are.
+Consolidated from the build, the incidents, and the changes. Each entry is what broke, why, and the takeaway — the things that shaped how the lab was built and operated.
 
-## Design & security
-- **The firewall must be the only path.** Removed a cable that let traffic bypass it.
-- **When requirements change, the design changes.** The blanket RFC1918 WAN block was replaced by one explicit VPN rule once remote access was needed.
-- **Interface address ≠ interface subnet.** A rule scoped to the firewall's own IP would have silently bypassed segmentation. Peer review caught it.
-- **Know the VPN mode.** Peer-to-peer is site-to-site; remote access is for individual users.
-- **A test only counts if it can fail.** Unplugged the direct cable before testing the VPN.
-- **Least privilege works quietly.** A blocked port (HTTP to the switch) showed up as a timeout, exactly as designed.
+## Troubleshoot layer by layer, bottom up
 
-## Tooling
-- **Git repo-level config overrides global config.** A placeholder email broke commit attribution; found with `git config --show-origin`.
-- **Run commands from the right folder.** The prompt shows where you are.
-- **A folder named `private/` is ignored at any depth.** Moving it inside `screenshots/` kept the images out of the commit.
+- **Day-1 outage: the switch was unpowered.** Everything downstream looked broken; the cause was no power at the access layer. Lesson: start at physical/power before touching config.
+- **VLAN 30 DNS failure.** The client had an IP but "No Internet." Packet captures showed DNS queries arriving on the USERS interface but never leaving toward the servers interface — pfSense was dropping them. Working the path hop by hop isolated a firewall rule, not a DNS or client problem.
+- **A stale static IP on the admin PC** blocked connectivity after a network change. Checking addressing first would have found it faster.
 
-## Linux administration (rhel01)
-- **Configured ≠ applied.** Proxmox showed VLAN-aware enabled while the change was still pending. Check the running state (`/sys/class/net/vmbr0/bridge/vlan_filtering`), not the GUI.
-- **A passing syntax check is not proof of effect.** `sshd -t` passed on an unchanged config; `sshd -T` shows what is actually enforced.
-- **Client vs. server config:** `ssh_config` (outbound) vs. `sshd_config` (inbound).
-- **Generate keys on the client.** The private key must never live on the server.
-- **Know which machine you're on.** The prompt (`PS C:\>` vs `user@host:~$`) tells you.
-- **SELinux denials are fixed with labels, not by disabling SELinux.** `semanage fcontext` + `restorecon` is permanent; `chcon` is not.
-- **Test fstab with `mount -a` before rebooting.** A bad entry can drop the server into emergency mode.
-- **Validate after reboot.** The reboot test exposed a volatile journal that would have hidden pre-reboot evidence during an incident.
-- **Don't claim evidence you don't have.** No AVC was logged during the original fix, so the denial was reproduced as a controlled test.
+## Firewall rules: order, scope, and "apply" all matter
 
-## Monitoring (splunk01)
-- **Check what you downloaded before you use it.** File size and type (76 KiB `text/html`, `.msi` vs `.deb`) revealed the wrong file before it caused a failure.
-- **Monitor from outside the target.** A check running on the server it watches can't report that server being down.
-- **Grant access, not root.** ACLs gave the forwarder read-only access to specific logs; logrotate hooks keep it working after rotation.
-- **Defaults aren't capacity planning.** Index max size defaulted larger than the disk.
-- **Ctrl+C cancels; Ctrl+Z only pauses.** A paused install step can look finished. Verify the end state (`systemctl is-enabled`).
-- **Named terminal tabs prevent running commands on the wrong host.**
+- **pfSense rules don't take effect until Applied.** The AD pass rules were saved but inactive; traffic only matched once they were applied/reordered above the block-to-servers rule. First match wins.
+- **Custom block rules don't log by default.** The DNS drop showed nothing in the firewall log because the block rule had logging off. Turned logging on so future drops are visible. (Only the default-deny rule logs out of the box.)
+- **OpenVPN was set to Peer-to-Peer, not Remote Access,** and a rule had source `*`. Scope every allow to the specific source, destination, and ports it needs.
+
+## Identity & access come from group membership, not attributes
+
+- **TKT-0001:** a transferred user's OU and Department were updated, but the security group was never changed — so they had no access. In AD, the group grants access; the OU and attributes don't.
+- **Group changes need a re-logon.** Group SIDs are captured in the Kerberos ticket at login, so changes don't apply until the user signs out and back in.
+- **A transfer is an add *and* a remove.** Leaving the old group attached causes privilege creep.
+
+## Tools create objects even when they error
+
+- **`New-ADUser` creates the account even if the password fails policy** — leaving it disabled with no password. The fix was to reset and enable the existing object, not delete and recreate.
+- **Domain join failed with "Access denied" until PowerShell was run as Administrator.** The error didn't name elevation as the cause; checking the session's privilege level did.
+
+## Containment can cut off the administrator
+
+- **INC-0002:** blocking the brute-force source by IP also blocked the admin workstation, because they shared the same VPN address — locking SSH out. Recovered via the Proxmox console. Lesson: block at a boundary the admin doesn't share, keep console access as a fallback, and scope blocks to `/32` not whole subnets.
+
+## Verify configuration, don't assume it saved
+
+- **The dc01 Splunk forwarder had no `outputs.conf`** — the installer never wrote it, so nothing forwarded despite the service running. Checked the file, wrote it by hand, and confirmed an established connection on 9997.
+- **A stray `997/tcp allow-from-anywhere` ufw rule** (a typo of 9997) was found during a firewall audit and removed. Re-check rules with `ufw status numbered` after any change.
+- **Service names are case-sensitive.** The health check silently skipped `splunkforwarder`; the real unit is `SplunkForwarder`. A silent skip hid a missing check until it was verified.
+
+## Virtualization & install gotchas
+
+- **Proxmox VLAN-aware bridge must be applied,** not just set — an unapplied change left VMs with no VLAN tagging.
+- **Windows 11 requires TPM + Secure Boot keys** on the VM; dc01 (Server 2022) didn't. Match VM firmware to the guest's requirements.
+
+---
+
+**Overall takeaway:** the difference between "it works" and "I can prove it works and fix it when it doesn't" is documentation and validation. Every incident here was faster to resolve because the baseline, the change history, and the evidence were already written down.
